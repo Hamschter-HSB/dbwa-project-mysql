@@ -1,0 +1,33 @@
+<div class="watchlist-header">
+  <h1>My Watchlist</h1>
+  <p>Movies and TV series you've saved for later</p>
+</div>
+
+<div *ngIf="loading" style="text-align: center; margin-top: 4rem;">
+  <p>Loading...</p>
+</div>
+
+<div *ngIf="!loading && watchlistItems.length === 0" style="text-align: center; margin-top: 4rem;">
+  <div class="glass-panel" style="padding: 3rem; display: inline-block;">
+    <h3>Your watchlist is empty</h3>
+    <p style="margin: 1rem 0 2rem;">Start exploring to add your favorites.</p>
+    <a routerLink="/" class="btn">Discover Now</a>
+  </div>
+</div>
+
+<div *ngIf="!loading && watchlistItems.length > 0" class="media-grid">
+  <div *ngFor="let item of watchlistItems" class="media-card" [routerLink]="['/details', item.mediaType, item.id]">
+    <img [src]="getPosterUrl(item.poster_path)" [alt]="item.title || item.name" class="media-poster" *ngIf="item.poster_path">
+    <div class="media-poster" *ngIf="!item.poster_path" style="display: flex; align-items: center; justify-content: center;">
+      <span style="color: var(--text-secondary); text-align: center; padding: 1rem;">No Image</span>
+    </div>
+    
+    <button class="remove-btn" (click)="removeFromWatchlist(item.watchlistId, $event)" title="Remove from Watchlist">
+      ✕
+    </button>
+    
+    <div class="media-info">
+      <div class="media-title">{{ item.title || item.name }}</div>
+    </div>
+  </div>
+</div>

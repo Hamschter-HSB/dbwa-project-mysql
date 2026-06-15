@@ -1,0 +1,39 @@
+<div class="search-header">
+  <h1>Search</h1>
+  <p>Find your next favorite movie or TV series</p>
+
+  <div class="search-controls">
+    <div class="type-toggle glass-panel">
+      <button [class.active]="searchType === 'movie'" (click)="setType('movie')">Movies</button>
+      <button [class.active]="searchType === 'tv'" (click)="setType('tv')">TV Series</button>
+    </div>
+
+    <input 
+      type="text" 
+      class="search-input glass-panel" 
+      placeholder="Search for a {{ searchType === 'movie' ? 'movie' : 'series' }}..." 
+      [(ngModel)]="searchQuery" 
+      (ngModelChange)="onSearchChange()">
+  </div>
+</div>
+
+<div *ngIf="loading" style="text-align: center; margin-top: 4rem;">
+  <p>Loading...</p>
+</div>
+
+<div *ngIf="!loading" class="media-grid">
+  <div *ngFor="let item of results" class="media-card" [routerLink]="['/details', searchType, item.id]">
+    <img [src]="getPosterUrl(item.poster_path)" [alt]="item.title || item.name" class="media-poster" *ngIf="item.poster_path">
+    <div class="media-poster" *ngIf="!item.poster_path" style="display: flex; align-items: center; justify-content: center;">
+      <span style="color: var(--text-secondary); text-align: center; padding: 1rem;">No Image</span>
+    </div>
+    
+    <div class="media-info">
+      <div class="media-title">{{ item.title || item.name }}</div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!loading && results.length === 0" style="text-align: center; margin-top: 4rem;">
+  <p>No results found for "{{ searchQuery }}"</p>
+</div>

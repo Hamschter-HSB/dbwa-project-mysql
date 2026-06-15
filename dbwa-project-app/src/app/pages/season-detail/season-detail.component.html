@@ -1,0 +1,38 @@
+<div *ngIf="loading" style="text-align: center; margin-top: 4rem;">
+  <p>Loading season details...</p>
+</div>
+
+<div *ngIf="!loading && seasonDetails" class="detail-container">
+  
+  <div class="header-section">
+    <div class="poster-col">
+      <img [src]="getPosterUrl(seasonDetails.poster_path)" class="season-poster" [alt]="seasonDetails.name" *ngIf="seasonDetails.poster_path">
+    </div>
+    <div class="info-col">
+      <h1 class="season-title">{{ seasonDetails.name }}</h1>
+      <p class="overview">{{ seasonDetails.overview || 'No description available.' }}</p>
+      <div class="metadata">
+        <span class="tag glass-panel">{{ seasonDetails.air_date | date:'yyyy' }}</span>
+        <span class="tag glass-panel">{{ seasonDetails.episodes.length }} Episodes</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="episodes-section" style="margin-top: 3rem;">
+    <h3>Episodes</h3>
+    <div class="episodes-list">
+      <div *ngFor="let episode of seasonDetails.episodes" class="episode-card glass-panel">
+        <div class="episode-img-wrapper">
+          <img [src]="getStillUrl(episode.still_path)" [alt]="episode.name" class="episode-img" *ngIf="episode.still_path">
+          <div *ngIf="!episode.still_path" class="episode-img placeholder">No Image</div>
+        </div>
+        <div class="episode-info">
+          <h4>{{ episode.episode_number }}. {{ episode.name }}</h4>
+          <span class="tag" style="background: rgba(255,255,255,0.1); margin-bottom: 0.5rem; display: inline-block;">★ {{ episode.vote_average | number:'1.1-1' }}</span>
+          <p>{{ episode.overview || 'No description available.' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

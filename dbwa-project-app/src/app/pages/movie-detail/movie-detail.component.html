@@ -1,0 +1,172 @@
+<div *ngIf="loading" style="text-align: center; margin-top: 4rem;">
+  <p>Loading details...</p>
+</div>
+
+<div *ngIf="!loading && details" class="detail-container">
+  
+  <div class="backdrop" [style.backgroundImage]="'url(' + getBackdropUrl(details.backdrop_path) + ')'">
+    <div class="backdrop-overlay"></div>
+  </div>
+
+  <div class="detail-content grid">
+    <div class="poster-col" style="position: relative;">
+      <div *ngIf="isWatched || myRating" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; z-index: 2;" title="You have watched this">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3" fill="#fff"></circle></svg>
+      </div>
+      <img [src]="getPosterUrl(details.poster_path)" class="detail-poster" [alt]="details.title || details.name">
+    </div>
+    
+    <div class="info-col">
+      <h1 class="detail-title">{{ details.title || details.name }}</h1>
+      
+      <div class="metadata">
+        <span class="tag glass-panel">{{ details.release_date || details.first_air_date | date:'yyyy' }}</span>
+        <span class="tag glass-panel">★ {{ details.vote_average | number:'1.1-1' }}</span>
+        <span class="tag glass-panel" *ngFor="let genre of details.genres">{{ genre.name }}</span>
+      </div>
+
+      <p class="overview">{{ details.overview }}</p>
+
+      <div class="actions" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; align-items: center;">
+        
+        <!-- Watchlist Toggle -->
+        <button class="icon-btn" (click)="addToWatchlist()" *ngIf="!isWatched && !myRating" 
+                [disabled]="addedToWatchlist" 
+                [title]="addedToWatchlist ? 'In Watchlist' : 'Add to Watchlist'"
+                [ngClass]="{'active': addedToWatchlist}">
+          <span class="material-icons" [style.color]="addedToWatchlist ? '#2ecc71' : 'white'">{{ addedToWatchlist ? 'bookmark' : 'bookmark_border' }}</span>
+        </button>
+
+        <!-- Mark as Watched -->
+        <button class="icon-btn" (click)="markAsWatched()" *ngIf="!myRating" 
+                [disabled]="isWatched" 
+                [title]="isWatched ? 'Watched' : 'Mark as Watched'"
+                [ngClass]="{'active': isWatched}">
+          <span class="material-icons" [style.color]="isWatched ? '#2ecc71' : 'white'">{{ isWatched ? 'visibility' : 'visibility_off' }}</span>
+        </button>
+
+        <!-- Rate -->
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button class="icon-btn rate-btn" (click)="myRating ? clickWatchedButton() : showRatingModal = true" 
+                  [title]="myRating ? 'Rated ' + myRating.rating + '/5' : 'Rate Media'"
+                  [ngClass]="{'active': myRating}">
+            <span class="material-icons" [style.color]="myRating ? '#FFD700' : 'white'">{{ myRating ? 'star' : 'star_border' }}</span>
+          </button>
+          <span *ngIf="myRating" style="font-size: 1.2rem; color: #FFD700; font-weight: bold;">{{ myRating.rating }}/5</span>
+        </div>
+
+      </div>
+
+      <!-- Watch Providers -->
+      <div class="watch-providers-container" *ngIf="watchProvidersLoaded">
+        <h4 class="providers-heading">Available on</h4>
+        <div class="providers-list" *ngIf="flatrateProviders.length > 0; else noProviders">
+          <div class="provider-item" *ngFor="let provider of flatrateProviders" [title]="provider.provider_name">
+            <img [src]="getProviderLogoUrl(provider.logo_path)" [alt]="provider.provider_name" class="provider-logo">
+          </div>
+        </div>
+        <ng-template #noProviders>
+          <p class="no-providers-text">currently no streaming service available</p>
+        </ng-template>
+      </div>
+
+      <!-- My Rating -->
+      <div *ngIf="myRating" class="my-rating glass-panel" style="margin-top: 1.5rem; padding: 1rem;">
+        <h4>My Rating</h4>
+        <p style="font-size: 1.5rem; margin: 0.5rem 0;">{{ getStars(myRating.rating) }}</p>
+        <p *ngIf="myRating.comment" style="color: var(--text-secondary); font-style: italic;">"{{ myRating.comment }}"</p>
+      </div>
+
+      <!-- Friends' Ratings -->
+      <div *ngIf="friendsRatings.length > 0" class="friends-ratings" style="margin-top: 2rem;">
+        <h3>Friends' Reviews</h3>
+        <div *ngFor="let r of friendsRatings" class="friend-review glass-panel" style="padding: 1rem; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-start;">
+          <img *ngIf="r.user?.avatar" [src]="getAvatarUrl(r.user.avatar)" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+          <div *ngIf="!r.user?.avatar" style="width: 40px; height: 40px; border-radius: 50%; background: var(--glass-bg); display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">{{ r.user?.username?.charAt(0)?.toUpperCase() }}</div>
+          <div style="flex: 1;">
+            <strong [routerLink]="['/user', r.user?.id]" style="cursor: pointer; color: var(--accent-color);">{{ r.user?.username }}</strong>
+            <p style="font-size: 1.2rem; margin: 0.25rem 0;">{{ getStars(r.rating) }}</p>
+            <p *ngIf="r.comment" style="color: var(--text-secondary); font-style: italic;">"{{ r.comment }}"</p>
+          </div>
+          <button *ngIf="r.comment" class="btn btn-sm btn-danger" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" (click)="openReportModal(r.id)">⚑ Report</button>
+        </div>
+      </div>
+
+      <div class="cast-section" *ngIf="cast.length > 0">
+        <h3>Top Cast</h3>
+        <div class="cast-grid">
+          <div *ngFor="let person of cast" class="cast-card glass-panel">
+            <img [src]="getProfileUrl(person.profile_path)" *ngIf="person.profile_path" class="cast-img">
+            <div *ngIf="!person.profile_path" class="cast-img placeholder"></div>
+            <div class="cast-info">
+              <h4>{{ person.name }}</h4>
+              <p>{{ person.character }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TV Seasons Section -->
+      <div class="seasons-section" *ngIf="mediaType === 'tv' && details?.seasons?.length > 0" style="margin-top: 3rem;">
+        <h3>Seasons</h3>
+        <div class="media-grid">
+          <div *ngFor="let season of details.seasons" class="media-card" [routerLink]="['/details', 'tv', details.id, 'season', season.season_number]">
+            <img [src]="getPosterUrl(season.poster_path)" [alt]="season.name" class="media-poster" *ngIf="season.poster_path">
+            <div class="media-poster" *ngIf="!season.poster_path" style="display: flex; align-items: center; justify-content: center;">
+              <span style="color: var(--text-secondary); text-align: center; padding: 1rem;">No Image</span>
+            </div>
+            <div class="media-info" style="opacity: 1; background: rgba(0,0,0,0.7); position: absolute; bottom: 0; width: 100%;">
+              <div class="media-title">{{ season.name }}</div>
+              <div style="font-size: 0.8rem; color: #ddd;">{{ season.episode_count }} Episodes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Rating Modal -->
+<div class="modal-backdrop" *ngIf="showRatingModal">
+  <div class="modal glass-panel" style="width: 90%; max-width: 450px; padding: 2rem;">
+    <h3>Rate "{{ details?.title || details?.name }}"</h3>
+    
+    <div style="display: flex; gap: 0.5rem; margin: 1.5rem 0; justify-content: center;">
+      <span *ngFor="let star of [1,2,3,4,5]"
+        style="font-size: 2.5rem; cursor: pointer; transition: color 0.2s;"
+        [style.color]="star <= ratingInput ? '#FFD700' : 'rgba(255,255,255,0.2)'"
+        (click)="ratingInput = star">★</span>
+    </div>
+
+    <textarea [(ngModel)]="commentInput" rows="3" class="form-control" placeholder="Optional: Write a comment..." style="width: 100%;"></textarea>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+      <button class="btn" style="flex: 1;" (click)="submitRating()">Submit</button>
+      <button class="btn btn-secondary" style="flex: 1;" (click)="showRatingModal = false">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal-backdrop" *ngIf="showReportModal">
+  <div class="modal glass-panel" style="width: 90%; max-width: 450px; padding: 2rem;">
+    <h3>Report comment</h3>
+    
+    <div style="margin: 1rem 0; text-align: center;">
+      <label style="cursor: pointer; margin-right: 1.5rem; display: inline-flex; align-items: center;">
+        <input type="radio" name="reason" value="spoiler" [(ngModel)]="reportReason" style="margin: 0 0.5rem 0 0; width: auto;"> Spoiler
+      </label>
+      <label style="cursor: pointer; display: inline-flex; align-items: center;">
+        <input type="radio" name="reason" value="other" [(ngModel)]="reportReason" style="margin: 0 0.5rem 0 0; width: auto;"> Other
+      </label>
+    </div>
+
+    <textarea *ngIf="reportReason === 'other'" [(ngModel)]="reportComment" rows="3" class="form-control" placeholder="Please describe the reason..." style="width: 100%; margin-bottom: 1rem;"></textarea>
+
+    <div style="display: flex; gap: 1rem;">
+      <button class="btn btn-danger" style="flex: 1;" (click)="submitReport()">Report</button>
+      <button class="btn btn-secondary" style="flex: 1;" (click)="showReportModal = false">Cancel</button>
+    </div>
+  </div>
+</div>

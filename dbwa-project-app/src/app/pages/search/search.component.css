@@ -1,0 +1,51 @@
+.search-header {
+  margin-bottom: 3rem;
+}
+
+.search-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.search-controls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.type-toggle {
+  display: flex;
+  padding: 0.25rem;
+  border-radius: 14px;
+}
+
+.type-toggle button {
+  background: transparent;
+  color: var(--text-secondary);
+  box-shadow: none;
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.type-toggle button:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.type-toggle button.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.search-input {
+  flex: 1;
+  min-width: 250px;
+  font-size: 1.1rem;
+  padding: 1rem 1.5rem;
+  border-radius: 14px;
+}

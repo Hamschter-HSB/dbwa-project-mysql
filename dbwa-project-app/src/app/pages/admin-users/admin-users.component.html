@@ -1,0 +1,196 @@
+<div class="admin-container">
+  <div class="admin-header-card glass-panel" style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="margin: 0;">Moderator View</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.5rem;">Manage platform users and reports</p>
+      </div>
+      <button class="btn btn-secondary" routerLink="/profile">Back to Profile</button>
+    </div>
+    
+    <div class="admin-tabs" style="display: flex; gap: 1rem; margin-top: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
+      <button class="tab-btn" [class.active]="activeTab === 'stats'" (click)="activeTab = 'stats'">Statistics</button>
+      <button class="tab-btn" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">Users</button>
+      <button class="tab-btn" [class.active]="activeTab === 'reports'" (click)="activeTab = 'reports'">Reports</button>
+    </div>
+  </div>
+
+  <!-- STATS TAB -->
+  <div *ngIf="activeTab === 'stats'">
+    <div *ngIf="!stats" style="text-align: center; margin-top: 2rem;"><p>Loading stats...</p></div>
+    <div *ngIf="stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+      <div class="stat-card glass-panel" style="padding: 1.5rem; text-align: center;">
+        <h3 style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 0.5rem;">Total Users</h3>
+        <p style="font-size: 2.5rem; font-weight: bold; margin: 0;">{{ stats.totalUsers }}</p>
+      </div>
+      <div class="stat-card glass-panel" style="padding: 1.5rem; text-align: center; border-color: rgba(46, 204, 113, 0.4);">
+        <h3 style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 0.5rem;">Online Now (5m)</h3>
+        <p style="font-size: 2.5rem; font-weight: bold; margin: 0; color: #2ecc71;">{{ stats.onlineUsers }}</p>
+      </div>
+      <div class="stat-card glass-panel" style="padding: 1.5rem; text-align: center;">
+        <h3 style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 0.5rem;">Total Comments</h3>
+        <p style="font-size: 2.5rem; font-weight: bold; margin: 0;">{{ stats.totalComments }}</p>
+      </div>
+      <div class="stat-card glass-panel" style="padding: 1.5rem; text-align: center;">
+        <h3 style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 0.5rem;">Total Watchlist</h3>
+        <p style="font-size: 2.5rem; font-weight: bold; margin: 0;">{{ stats.totalWatchlist }}</p>
+      </div>
+      <div class="stat-card glass-panel" style="padding: 1.5rem; text-align: center;">
+        <h3 style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 0.5rem;">Total Watched</h3>
+        <p style="font-size: 2.5rem; font-weight: bold; margin: 0;">{{ stats.totalWatched }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- USERS TAB -->
+  <div *ngIf="activeTab === 'users'">
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+      <button class="btn btn-primary" (click)="showCreateUser = true">Create User</button>
+    </div>
+    <div *ngIf="loading" style="text-align: center; margin-top: 2rem;"><p>Loading users...</p></div>
+    <div *ngIf="!loading" class="users-table-container glass-panel" style="overflow-x: auto;">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span class="badge" [ngClass]="user.role === 'admin' ? 'badge-admin' : 'badge-member'">
+                {{ user.role }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="user.isBanned ? 'badge-banned' : 'badge-active'">
+                {{ user.isBanned ? 'Banned' : 'Active' }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="btn btn-sm btn-secondary" (click)="startEdit(user)" [disabled]="user.role === 'admin' && user.id !== currentUser?.id">Edit</button>
+              <button class="btn btn-sm" [ngClass]="user.isBanned ? 'btn-success' : 'btn-warning'" (click)="toggleBan(user)" [disabled]="user.role === 'admin'">
+                {{ user.isBanned ? 'Unban' : 'Ban' }}
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deleteUser(user)" [disabled]="user.role === 'admin'">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- REPORTS TAB -->
+  <div *ngIf="activeTab === 'reports'">
+    <div *ngIf="reports.length === 0" style="text-align: center; margin-top: 2rem;"><p>No pending reports.</p></div>
+    <div *ngIf="reports.length > 0" class="glass-panel" style="overflow-x: auto;">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Report ID</th>
+            <th>Reporter</th>
+            <th>Reported User</th>
+            <th>Reason</th>
+            <th>Comment</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of reports">
+            <td>{{ r.id }}</td>
+            <td><a [routerLink]="['/user', r.reporter.id]" style="color: var(--accent-color); text-decoration: none;">{{ r.reporter.username }}</a></td>
+            <td><a [routerLink]="['/user', r.rating.user.id]" style="color: var(--accent-color); text-decoration: none;">{{ r.rating.user.username }}</a></td>
+            <td>{{ r.reason === 'spoiler' ? 'Spoiler' : 'Other' }}</td>
+            <td>
+              <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Reporter said: "{{ r.comment }}"</p>
+              <p style="margin: 0; margin-top: 0.5rem; font-style: italic; font-size: 0.9rem;">Reported comment: "{{ r.rating.comment }}"</p>
+            </td>
+            <td class="actions-cell" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn btn-sm btn-danger" (click)="resolveReport(r, 'delete')">Delete Comment</button>
+              <button class="btn btn-sm btn-secondary" (click)="resolveReport(r, 'keep')">Keep Comment</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal-backdrop" *ngIf="editingUser">
+  <div class="modal glass-panel" style="width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto;">
+    <h3>Edit User</h3>
+    
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" [(ngModel)]="editUsername" class="form-control" [disabled]="editingUser.role === 'admin' && editingUser.id !== currentUser?.id">
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="editEmail" class="form-control" [disabled]="editingUser.role === 'admin' && editingUser.id !== currentUser?.id">
+    </div>
+
+    <div class="form-group">
+      <label>Role</label>
+      <select [(ngModel)]="editRole" class="form-control" [disabled]="editingUser.id === currentUser?.id" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem; border-radius: 8px; width: 100%;">
+        <option value="member" style="color: black;">Member</option>
+        <option value="admin" style="color: black;">Admin</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>New Password (leave blank to keep current)</label>
+      <input type="password" [(ngModel)]="editPassword" class="form-control" placeholder="••••••••">
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+      <button class="btn" style="flex: 1;" (click)="saveEdit()">Save</button>
+      <button class="btn btn-secondary" style="flex: 1;" (click)="cancelEdit()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create User Modal -->
+<div class="modal-backdrop" *ngIf="showCreateUser">
+  <div class="modal glass-panel" style="width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto;">
+    <h3>Create User</h3>
+    
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" [(ngModel)]="createUsername" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="createEmail" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label>Role</label>
+      <select [(ngModel)]="createRole" class="form-control" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem; border-radius: 8px; width: 100%;">
+        <option value="member" style="color: black;">Member</option>
+        <option value="admin" style="color: black;">Admin</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" [(ngModel)]="createPassword" class="form-control" placeholder="••••••••">
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+      <button class="btn" style="flex: 1;" (click)="submitCreateUser()">Create</button>
+      <button class="btn btn-secondary" style="flex: 1;" (click)="showCreateUser = false">Cancel</button>
+    </div>
+  </div>
+</div>

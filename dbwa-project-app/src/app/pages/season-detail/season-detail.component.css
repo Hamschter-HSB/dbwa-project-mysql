@@ -1,0 +1,78 @@
+.header-section {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 2rem;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .header-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+.season-poster {
+  width: 100%;
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.season-title {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.episodes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.episode-card {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1rem;
+  align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+  .episode-card {
+    flex-direction: column;
+  }
+}
+
+.episode-img-wrapper {
+  flex-shrink: 0;
+  width: 250px;
+}
+
+.episode-img {
+  width: 100%;
+  border-radius: 8px;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+}
+
+.episode-img.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+.episode-info {
+  flex: 1;
+}
+
+.episode-info h4 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.episode-info p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}

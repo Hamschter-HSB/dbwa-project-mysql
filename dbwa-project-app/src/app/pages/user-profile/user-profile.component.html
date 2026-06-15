@@ -1,0 +1,45 @@
+<div *ngIf="loading" style="text-align: center; margin-top: 4rem;">
+  <p>Loading profile...</p>
+</div>
+
+<div *ngIf="!loading && user" class="profile-container">
+  <div class="profile-header-card glass-panel">
+    <div class="avatar-wrapper">
+      <img *ngIf="user.avatar" [src]="getAvatarUrl(user.avatar)" class="avatar-img">
+      <div *ngIf="!user.avatar" class="avatar-placeholder">
+        {{ user.username.charAt(0).toUpperCase() }}
+      </div>
+    </div>
+    <div class="info-section">
+      <h1>{{ user.username }} <span class="role-badge">{{ user.role }}</span></h1>
+      
+      <div *ngIf="getParsedGenres().length > 0" class="genres-display" style="margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        <span *ngFor="let g of getParsedGenres()" class="badge badge-primary" style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem;">{{ g }}</span>
+      </div>
+
+      <p class="bio">{{ user.bio || 'No bio available.' }}</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 3rem;">
+    <h3>{{ user.username }}'s Watchlist ({{ watchlistItems.length }})</h3>
+
+    <div *ngIf="watchlistItems.length === 0" class="glass-panel" style="padding: 2rem; text-align: center;">
+      <p style="color: var(--text-secondary);">Watchlist is empty.</p>
+    </div>
+
+    <div class="media-grid" *ngIf="watchlistItems.length > 0">
+      <div *ngFor="let item of (showAllWatchlist ? watchlistItems : watchlistItems.slice(0, 4))" class="media-card" [routerLink]="['/details', item.mediaType, item.id]">
+        <img [src]="getPosterUrl(item.poster_path)" [alt]="item.title || item.name" class="media-poster" *ngIf="item.poster_path">
+        <div class="media-poster placeholder" *ngIf="!item.poster_path">No Image</div>
+        <div class="media-info">
+          <div class="media-title">{{ item.title || item.name }}</div>
+        </div>
+      </div>
+    </div>
+
+    <button *ngIf="watchlistItems.length > 4" class="btn btn-secondary" style="width: 100%; margin-top: 1rem;" (click)="showAllWatchlist = !showAllWatchlist">
+      {{ showAllWatchlist ? 'Show Less' : 'Show All' }}
+    </button>
+  </div>
+</div>

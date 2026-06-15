@@ -1,0 +1,21 @@
+<div class="discovery-header">
+  <h1>Trending Movies</h1>
+  <p>Discover what's popular this week</p>
+</div>
+
+<div *ngIf="loading" style="text-align: center; margin-top: 4rem;">
+  <p>Loading...</p>
+</div>
+
+<div *ngIf="!loading" class="media-grid">
+  <div *ngFor="let movie of trendingMovies" class="media-card" [routerLink]="['/details', 'movie', movie.id]">
+    <img [src]="getPosterUrl(movie.poster_path)" [alt]="movie.title" class="media-poster" *ngIf="movie.poster_path">
+    <div class="media-poster" *ngIf="!movie.poster_path" style="display: flex; align-items: center; justify-content: center;">
+      <span style="color: var(--text-secondary); text-align: center; padding: 1rem;">No Image</span>
+    </div>
+    
+    <div class="media-info">
+      <div class="media-title">{{ movie.title }}</div>
+    </div>
+  </div>
+</div>
