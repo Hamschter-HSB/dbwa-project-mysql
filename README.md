@@ -16,6 +16,8 @@ Making Movies & Shows great again.
     cd path/to/your/project
     npm install
     ```
+2. **Edit Enviroments:**
+3. Add your [tmdb-api-token](https://developer.themoviedb.org/docs/getting-started) (you need to be loggedin) and mysql database credentials (with you started before launching the app) to the [enviroment.ts](https://github.com/Hamschter-HSB/dbwa-project-mysql/blob/main/dbwa-project-app/src/environments/environment.ts).
 
 2.  **Start the Server:**
     This command builds the Angular application and starts the Node.js server.
