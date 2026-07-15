@@ -5,7 +5,7 @@ import { pool } from './db.js';
 
 export const apiRouter = Router();
 
-const JWT_SECRET = 'super-secret-key-for-dbwa-project';
+const JWT_SECRET = 'geht-dich-garnichts-an-HSB-TO-THE-MOON';
 
 // Authentication Middleware
 export const authenticate = (req: any, res: any, next: any) => {
