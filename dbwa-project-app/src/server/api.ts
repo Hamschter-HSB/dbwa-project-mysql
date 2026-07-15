@@ -83,7 +83,7 @@ apiRouter.post('/auth/login', async (req: any, res: any): Promise<any> => {
     const user = users[0];
 
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
-    if (user.isBanned) return res.status(403).json({ error: 'Account banned' });
+    if (user.isBanned) return res.status(403).json({ error: 'Your Account has been banned.' });
 
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) return res.status(401).json({ error: 'Invalid credentials' });
