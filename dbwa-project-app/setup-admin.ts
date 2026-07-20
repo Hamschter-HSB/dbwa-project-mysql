@@ -62,8 +62,8 @@ async function run() {
     } else {
       // Create new admin user
       await pool.execute(
-        'INSERT INTO users (username, email, password, role, isBanned) VALUES (?, ?, ?, ?, ?)',
-        ['dozent', 'dozent@hsb.hsb', hashedPassword, 'admin', 0]
+        'INSERT INTO users (username, email, password, role, isBanned, recoveryCode) VALUES (?, ?, ?, ?, ?, ?)',
+        ['dozent', 'dozent@hsb.hsb', hashedPassword, 'admin', 0, 'jaws-starwars-alien-rocky']
       );
     }
 
